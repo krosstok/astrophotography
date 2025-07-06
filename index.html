@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astrophotography Viewer</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for better readability and aesthetics */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Dark blue-gray background */
+            color: #e2e8f0; /* Light text color */
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .section-header {
+            background-color: #1e293b; /* Slightly lighter dark background for headers */
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card {
+            background-color: #1e293b;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .back-to-top-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            background-color: #4a90e2; /* Blue button */
+            color: white;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .back-to-top-link:hover {
+            background-color: #357ABD;
+        }
+        .toc-link {
+            color: #81e6d9; /* Teal color for TOC links */
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .toc-link:hover {
+            color: #4fd1c5;
+        }
+        /* Responsive image sizing */
+        .astronomy-image {
+            width: 100%;
+            height: auto; /* Maintain aspect ratio */
+            max-height: 400px; /* Limit max height for large screens */
+            object-fit: cover; /* Cover the area, cropping if necessary */
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="container">
+        <!-- Header Section -->
+        <header class="section-header text-center">
+            <h1 class="text-4xl font-extrabold text-white mb-2">Astrophotography Gallery</h1>
+            <p class="text-lg text-gray-400">Explore the wonders of the cosmos through stunning images and fascinating facts.</p>
+        </header>
+
+        <!-- Table of Contents -->
+        <section id="table-of-contents" class="card mb-8">
+            <h2 class="text-3xl font-bold text-white mb-6">Table of Contents</h2>
+            <ul id="toc-list" class="space-y-3 text-lg">
+                <!-- TOC items will be injected here by JavaScript -->
+            </ul>
+        </section>
+
+        <!-- Image Sections -->
+        <main id="image-sections">
+            <!-- Image details will be injected here by JavaScript -->
+        </main>
+
+        <!-- Footer Section -->
+        <footer class="section-header text-center mt-8">
+            <p class="text-gray-400 text-sm">&copy; 2025 Astrophotography Viewer. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Sample JSON array for astrophotography data
+        const astrophotographyData = [
+            {
+                "name": "Andromeda Galaxy (M31)",
+                "description": "A spiral galaxy and the closest large galaxy to the Milky Way. It is on a collision course with the Milky Way.",
+                "distanceFromEarthInKm": 2.537e+19,
+                "ageInYears": 1.001e+10,
+                "funFact": "The Andromeda Galaxy is the most distant object visible to the naked eye from Earth under dark sky conditions.",
+                "src": "Odyssey-20241024-003725.png"
+            },
+            {
+                "name": "Dumbbell Nebula (M27)",
+                "description": "A planetary nebula, formed when a star sheds its outer layers at the end of its life. It gets its name from its distinctive hourglass or dumbbell shape.",
+                "distanceFromEarthInKm": 1.258e+16,
+                "ageInYears": 1.0e+04,
+                "funFact": "The Dumbbell Nebula was the first planetary nebula ever discovered, observed by Charles Messier in 1764.",
+                "src": "Odyssey-20241027-021728.png"
+            },
+            {
+                "name": "Blue Oyster Nebula (NGC 7027)",
+                "description": "A very young and dense planetary nebula. It is one of the most chemically enriched planetary nebulae known, with complex molecular structures.",
+                "distanceFromEarthInKm": 9.778e+15,
+                "ageInYears": 6.0e+02,
+                "funFact": "The Blue Oyster Nebula is expanding rapidly, with gas shells moving outward at speeds of up to 1.6 million kilometers per hour.",
+                "src": "Odyssey-20241024-010603.png"
+            },
+            {
+                "name": "Comet C/2023 A3 (Tsuchinshan–ATLAS)",
+                "description": "A long-period comet discovered in 2023. It is notable for its potentially bright appearance as it makes its closest approach to the Sun and Earth in late 2024.",
+                "distanceFromEarthInKm": 7.0e+07,
+                "ageInYears": 4.57e+09,
+                "funFact": "Comet C/2023 A3 is expected to be a naked-eye comet in October 2024, potentially reaching magnitudes comparable to bright stars.",
+                "src": "Odyssey-20241106-015613.png"
+            }
+        ];
+
+        // Function to convert kilometers to light-years
+        function kmToLightYears(km) {
+            const kmPerLightYear = 9.461e+12; // 1 light-year in kilometers
+            return (km / kmPerLightYear).toFixed(2);
+        }
+
+        // Function to format age in years (e.g., to billions of years)
+        function formatAge(years) {
+            if (years >= 1e9) {
+                return (years / 1e9).toFixed(2) + " billion years";
+            } else if (years >= 1e6) {
+                return (years / 1e6).toFixed(2) + " million years";
+            } else if (years >= 1e3) {
+                return (years / 1e3).toFixed(2) + " thousand years";
+            }
+            return years.toLocaleString() + " years";
+        }
+
+        // DOMContentLoaded ensures the script runs after the HTML is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const tocList = document.getElementById('toc-list');
+            const imageSectionsContainer = document.getElementById('image-sections');
+
+            astrophotographyData.forEach((item, index) => {
+                // Generate TOC item
+                const tocItem = document.createElement('li');
+                const tocLink = document.createElement('a');
+                const sectionId = `image-${index}`; // Unique ID for each section
+                tocLink.href = `#${sectionId}`;
+                tocLink.textContent = item.name;
+                tocLink.classList.add('toc-link');
+                tocItem.appendChild(tocLink);
+                tocList.appendChild(tocItem);
+
+                // Generate Image Section
+                const section = document.createElement('section');
+                section.id = sectionId;
+                section.classList.add('card');
+
+                // Placeholder image URL (since actual images are not provided)
+                const placeholderWidth = 800;
+                const placeholderHeight = 400;
+                const placeholderColor = '334155'; // Slate-700
+                const placeholderTextColor = 'e2e8f0'; // Gray-200
+                const imageUrl = `${item.src}`;
+
+                section.innerHTML = `
+                    <h2 class="text-3xl font-bold text-white mb-4">${item.name}</h2>
+                    <img src="${imageUrl}" alt="${item.name}" class="astronomy-image mb-4 rounded-lg shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/800x400/334155/e2e8f0?text=Image+Not+Available';">
+                    <p class="text-gray-300 mb-4">${item.description}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="font-semibold text-gray-200">Distance from Earth:</p>
+                            <p class="text-gray-300">${kmToLightYears(item.distanceFromEarthInKm)} light-years</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-200">Age:</p>
+                            <p class="text-gray-300">${formatAge(item.ageInYears)}</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 mb-6"><span class="font-semibold text-gray-200">Fun Fact:</span> ${item.funFact}</p>
+                    <a href="#table-of-contents" class="back-to-top-link">Back to Table of Contents</a>
+                `;
+                imageSectionsContainer.appendChild(section);
+            });
+        });
+    </script>
+</body>
+</html>
